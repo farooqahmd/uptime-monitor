@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Uptime Dashboard</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f4f4f4; padding: 20px; }
+    h1 { color: #333; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { padding: 10px; border: 1px solid #ccc; text-align: left; }
+    th { background-color: #eee; }
+    .up { color: green; font-weight: bold; }
+    .down { color: red; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h1>📡 Uptime Monitor</h1>
+  <table id="statusTable">
+    <thead>
+      <tr>
+        <th>Site</th>
+        <th>Status</th>
+        <th>Response Time</th>
+        <th>Checked At</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    async function loadStatus() {
+const res = await fetch('http://localhost:5025/proxy-status');
+      const data = await res.json();
+      const tbody = document.querySelector('#statusTable tbody');
+      tbody.innerHTML = '';
+
+      data.forEach(site => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${site.friendly_name}</td>
+          <td class="${site.is_up ? 'up' : 'down'}">${site.is_up ? 'UP ✅' : 'DOWN ❌'}</td>
+          <td>${site.response_time_ms ?? '—'} ms</td>
+          <td>${site.checked_at ?? '—'}</td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    loadStatus();
+    setInterval(loadStatus, 10000); // Refresh every 10 seconds
+  </script>
+</body>
+</html>

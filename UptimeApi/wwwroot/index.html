@@ -1,0 +1,70 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Uptime Monitor Dashboard</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      padding: 20px;
+    }
+    h1 {
+      color: #333;
+    }
+    .site {
+      background: #fff;
+      padding: 15px;
+      margin-bottom: 10px;
+      border-radius: 5px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    }
+    .up {
+      color: green;
+      font-weight: bold;
+    }
+    .down {
+      color: red;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>🌐 Uptime Monitor Dashboard</h1>
+  <div id="site-status">Loading...</div>
+
+  <script>
+    async function refreshStatus() {
+      try {
+        const response = await fetch('http://localhost:8000/status'); // ✅ fixed fetch
+        const sites = await response.json();
+
+        const container = document.getElementById('site-status');
+        container.innerHTML = ''; // Clear old content
+
+        sites.forEach(site => {
+          const div = document.createElement('div');
+          div.className = 'site';
+          div.innerHTML = `
+            <strong>${site.friendly_name}</strong><br>
+            <span class="${site.is_up ? 'up' : 'down'}">
+              ${site.is_up ? 'UP ✅' : 'DOWN ❌'}
+            </span><br>
+            Response Time: ${site.response_time_ms} ms<br>
+            Checked At: ${new Date(site.checked_at).toLocaleTimeString()}
+          `;
+          container.appendChild(div);
+        });
+      } catch (error) {
+        document.getElementById('site-status').innerHTML = 'Error loading data.';
+        console.error('Failed to fetch site status:', error);
+      }
+    }
+
+    setInterval(refreshStatus, 30000); // Refresh every 30 seconds
+    refreshStatus(); // Initial load
+  </script>
+</body>
+</html>
+```
